@@ -1,0 +1,7 @@
+node_modules
+cdk.out
+.idea
+generated
+package-lock.json
+.vscode
+cdk.context.json

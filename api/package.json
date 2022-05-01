@@ -1,0 +1,17 @@
+{
+  "name": "fivebysix-api",
+  "version": "1.0.0",
+  "scripts": {
+    "generate": "npm run fetch_schema_json && npm run generate_queries && npm run generate_types",
+    "fetch_schema_json": "bash ./scripts/fetch_schema_json.sh",
+    "generate_queries": "amplify codegen",
+    "generate_types": "graphql-codegen"
+  },
+  "devDependencies": {
+    "@aws-amplify/cli": "^8.2.0",
+    "@graphql-codegen/cli": "^2.6.2",
+    "@graphql-codegen/typescript": "^2.4.11",
+    "@graphql-codegen/typescript-operations": "^2.4.0",
+    "@graphql-codegen/typescript-resolvers": "^2.6.4"
+  }
+}

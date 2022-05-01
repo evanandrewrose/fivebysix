@@ -1,0 +1,111 @@
+type Query {
+  # Retrieve the current game state.
+  getGame(gameId: String!): Game!
+
+  # Get a player's info.
+  getPlayer(playerId: String!): Player!
+
+  # Retrieve player's guesses so far.
+  getGuesses(playerToken: String!, gameId: String!): [GuessResponse!]!
+}
+
+type Mutation {
+  # Create a new game. If a gameId is not given, a UUID will be generated.
+  createGame(playerToken: String!, gameId: String): Game!
+
+  # Create a new player. Returns a player id and token to use in future API calls.
+  createPlayer: CreatePlayerResponse!
+
+  # Join a game. Expects that the game is in the `WAITING` state.
+  joinGame(playerToken: String!, gameId: String!): Game!
+
+  # Set your player name.
+  setPlayerName(playerToken: String!, name: String!): Player!
+
+  # This is a restricted API used to notify users that the game state has changed.
+  notifyGameUpdate(game: GameInput!): Game! @aws_iam
+
+  # Update the player "ready" state, indicating that they're ready to start the game. When all players are ready, the game state
+  # is updated to `ONGOING`.
+  setPlayerReady(playerToken: String!, gameId: String!): Game!
+
+  # Provide a "guess" for the secret word of a given game.
+  guess(playerToken: String!, gameId: String!, word: String!): GuessResponse!
+}
+
+type Subscription {
+  # Triggered when the game state updates.
+  updatedGame(id: String!): Game
+    @aws_subscribe(
+      mutations: ["notifyGameUpdate", "joinGame", "setPlayerReady"]
+    )
+}
+
+enum GameState {
+  WAITING
+  ONGOING
+  FINISHED
+}
+
+type Player {
+  id: String! @aws_iam @aws_api_key
+  name: String @aws_iam @aws_api_key
+}
+
+type PlayerState {
+  player: Player! @aws_iam @aws_api_key
+  ready: Boolean! @aws_iam @aws_api_key
+  guesses: [[Assessment!]!]! @aws_iam @aws_api_key
+}
+
+type Game {
+  id: String! @aws_iam @aws_api_key
+  word: String @aws_iam @aws_api_key
+  winnerPlayerId: String @aws_iam @aws_api_key
+  state: GameState! @aws_iam @aws_api_key
+  host: String! @aws_iam @aws_api_key
+  playerStates: [PlayerState!]! @aws_iam @aws_api_key
+}
+
+input PlayerInput {
+  id: String!
+  name: String
+}
+
+input PlayerStateInput {
+  player: PlayerInput!
+  ready: Boolean!
+  guesses: [[Assessment!]!]!
+}
+
+input GameInput {
+  id: String!
+  word: String
+  winnerPlayerId: String
+  state: GameState!
+  host: String!
+  playerStates: [PlayerStateInput!]!
+}
+
+type CreatePlayerResponse {
+  token: String!
+  player: Player!
+}
+
+# Represents whether the given character is correct, incorrect (not in the word), or displaced
+# (in the word, but not in the given spot).
+enum Assessment {
+  INCORRECT
+  CORRECT
+  DISPLACED
+}
+
+type AssessedCharacter {
+  character: String!
+  result: Assessment!
+}
+
+type GuessResponse {
+  # An ordered list of characters and their corresponding assessment.
+  characters: [AssessedCharacter!]!
+}
