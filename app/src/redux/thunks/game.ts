@@ -74,16 +74,6 @@ export const newConsecutiveGame = createAsyncThunk<
   } catch (e) {
     // todo: better handling, but someone else probably already made the new game so we'll join it
     gameState = (
-      await client.mutate<GetGameQuery, GetGameQueryVariables>({
-        errorPolicy: "all",
-        mutation: gql(getGame),
-        variables: {
-          gameId: nextGameId,
-        },
-      })
-    ).data!.getGame;
-
-    gameState = (
       await client.mutate<JoinGameMutation, JoinGameMutationVariables>({
         mutation: gql(joinGameQuery),
         variables: {
