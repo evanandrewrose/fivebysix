@@ -9,7 +9,7 @@ const authLinkOptions: Parameters<typeof createAuthLink>[0] = {
   region: "us-east-1",
   auth: {
     type: "API_KEY",
-    apiKey: "da2-dhp2vx6jsvfcvi4i6s75s56eti",
+    apiKey: "da2-lk3xo5fejnhfhoilbe34aexddy",
   },
 };
 
